@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Submission</title>
+  <link rel="stylesheet" href="submission.css">
+</head>
+
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+      </div>
+      <nav class="navbar">
+        <h1><a href="../Hub/hubpage.html" class="logo">
+            LearnUP
+          </a></h1>
+
+        <div class="search-box">
+          <input type="text" placeholder="Search..." id="searchInput">
+          <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="menu">
+          <div class="dropdown">
+            <a href="#" class="dropbtn">More ▼</a>
+            <div class="dropdown-content">
+              <a href="../Hub/hubpage.html">Dashboard</a>
+              <a href="../index.html">Logout</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+  </header>
+
+  <main class="submission-container">
+    <div id="assignment-details" class="assignment-details">
+      <p>Loading assignment details...</p>
+    </div>
+
+    <div class="upload-section" id="uploadSection" style="display: none;">
+      <form id="submissionForm">
+        <label for="fileUpload">Choose your file:</label>
+        <input type="file" id="fileUpload" required>
+
+        <label for="comments">Comments (optional):</label>
+        <textarea id="comments" rows="4" placeholder="Add comments if any..."></textarea>
+
+        <button type="submit">Submit Assignment</button>
+      </form>
+      <p id="submissionMessage"></p>
+    </div>
+  </main>
+
+  <!-- Supabase Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../supabaseConfig.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const studentId = sessionStorage.getItem('student_id');
+      if (!studentId) {
+        window.location.href = '../loginpage.html';
+        return;
+      }
+
+      // Parse assignmentId from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const assignmentId = urlParams.get('assignmentId');
+
+      if (!assignmentId) {
+        document.getElementById('assignment-details').innerHTML = '<p style="color:red;">Error: No assignment specified.</p>';
+        return;
+      }
+
+      const detailsContainer = document.getElementById('assignment-details');
+      const uploadSection = document.getElementById('uploadSection');
+      const messageEl = document.getElementById('submissionMessage');
+
+      try {
+        // Fetch Assignment Details
+        const { data: assign, error } = await supabaseClient
+          .from('assignment')
+          .select(`
+                    *,
+                    course:course_id(title, course_code)
+                `)
+          .eq('assignment_id', assignmentId)
+          .single();
+
+        if (error || !assign) {
+          throw new Error('Assignment not found');
+        }
+
+        // Check if already submitted
+        const { data: existingSub } = await supabaseClient
+          .from('submission')
+          .select('*')
+          .eq('assignment_id', assignmentId)
+          .eq('student_id', studentId)
+          .single();
+
+        let statusHtml = '';
+        if (existingSub) {
+          statusHtml = `<p style="color: green;"><strong>Previously Submitted:</strong> ${existingSub.sub_date} at ${existingSub.sub_time}</p>`;
+          // Optional: Disable form or allow re-submission? 
+          // For now, let's disable functionality or just warn.
+          messageEl.textContent = "You have already submitted this assignment.";
+          messageEl.style.color = "blue";
+        }
+
+        // Render Details
+        detailsContainer.innerHTML = `
+                <h2>${assign.course?.title} (${assign.course?.course_code})</h2>
+                <p><strong>Due Date:</strong> <span>${assign.due_date}</span></p>
+                <p><strong>Due Time:</strong> <span>${assign.due_time}</span></p>
+                <p><strong>Total Marks:</strong> <span>${assign.total_marks}</span></p>
+                <p><strong>Status:</strong> <span>${assign.status}</span></p>
+                ${statusHtml}
+            `;
+
+        if (assign.status === 'Closed') {
+          detailsContainer.innerHTML += `<p style="color: red;"><strong>This assignment is CLOSED.</strong></p>`;
+        } else {
+          uploadSection.style.display = 'block';
+        }
+
+      } catch (err) {
+        console.error('Error fetching details:', err);
+        detailsContainer.innerHTML = `<p style="color:red;">Error loading details: ${err.message}</p>`;
+      }
+
+      // Handle Form Submit
+      const form = document.getElementById('submissionForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('fileUpload');
+        const file = fileInput.files[0];
+
+        if (!file) {
+          messageEl.textContent = "Please select a file!";
+          messageEl.style.color = 'red';
+          return;
+        }
+
+        messageEl.textContent = "Submitting...";
+        messageEl.style.color = '#3b82f6';
+
+        try {
+          // Generate ID
+          const newSubmissionId = Math.floor(Math.random() * 100000) + 1000;
+          const now = new Date();
+          const dateStr = now.toISOString().split('T')[0];
+          const timeStr = now.toTimeString().split(' ')[0];
+
+          // Insert into Supabase
+          const { error: insertError } = await supabaseClient
+            .from('submission')
+            .insert([{
+              submission_id: newSubmissionId,
+              student_id: studentId,
+              assignment_id: assignmentId,
+              sub_date: dateStr,
+              sub_time: timeStr,
+              status: 'Submitted',
+              graded: false
+            }]);
+
+          if (insertError) throw insertError;
+
+          messageEl.textContent = `Success! File "${file.name}" submitted on ${dateStr} at ${timeStr}.`;
+          messageEl.style.color = '#10b981';
+
+          // Clear form
+          form.reset();
+
+          // Redirect back after short delay (optional)
+          setTimeout(() => {
+            window.location.href = 'assignmentpage.html';
+          }, 2000);
+
+        } catch (err) {
+          console.error('Submission failed:', err);
+          messageEl.textContent = "Submission Failed: " + err.message;
+          messageEl.style.color = 'red';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

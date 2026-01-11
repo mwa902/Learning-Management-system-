@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courses</title>
+  <link rel="stylesheet" href="course.css">
+</head>
+
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+      </div>
+      <nav class="navbar">
+        <a href="../Hub/hubpage.html" class="logo">LearnUP</a>
+
+        <div class="search-box">
+          <input type="text" placeholder="Search..." id="searchInput">
+          <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="menu">
+          <div class="dropdown">
+            <a href="#" class="dropbtn">More ▼</a>
+            <div class="dropdown-content">
+              <a href="../Hub/hubpage.html">Dashboard</a>
+              <a href="../personal/personalpage.html">Profile</a>
+              <a href="../index.html">Logout</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+  </header>
+
+  <main class="courses-container">
+    <h2>Available Courses</h2>
+
+    <div id="courses-list">
+      <!-- Courses will be loaded here dynamically -->
+      <p>Loading courses...</p>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../supabaseConfig.js"></script>
+  <script src="coursespage.js"></script>
+</body>
+
+</html>

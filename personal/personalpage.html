@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Profile</title>
+  <link rel="stylesheet" href="personalpage.css">
+</head>
+
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="../Hub/hubpage.html" class="logo">LearnUP</a>
+
+      <div class="search-box">
+        <input type="text" placeholder="Search..." id="searchInput">
+        <button class="search-btn">🔍</button>
+      </div>
+
+<nav>
+  <div class="menu">
+    <div class="dropdown">
+      <a href="#" class="dropbtn">More ▼</a>
+
+      <div class="dropdown-content">
+        <a href="../Hub/hubpage.html">Dashboard</a>
+        <a href="../index.html">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+    </nav>
+  </header>
+
+  <main class="profile-container">
+    <div class="profile-card">
+      <div class="profile-img">
+        <img src="images.png" alt="Profile Picture">
+      </div>
+      <div class="profile-info">
+        <h2 id="student-name">Loading...</h2>
+        <p><strong>Username:</strong> <span id="student-username">Loading...</span></p>
+        <p><strong>Email:</strong> <span id="student-email">Loading...</span></p>
+        <p><strong>Program:</strong> <span id="student-program">Loading...</span></p>
+        <p><strong>Semester:</strong> <span id="student-semester">Loading...</span></p>
+        <p><strong>Batch:</strong> <span id="student-batch">Loading...</span></p>
+        <p><strong>Phone:</strong> <span id="student-phone">Loading...</span></p>
+      </div>
+      <button class="edit-btn">Edit Profile</button>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../supabaseConfig.js"></script>
+  <script src="personalpage.js"></script>
+</body>
+
+</html>

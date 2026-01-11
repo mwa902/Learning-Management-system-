@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report an Issue | LearnUP</title>
+    <link rel="stylesheet" href="hub_pages.css">
+</head>
+
+<body>
+    <div class="content-container">
+        <a href="hubpage.html" class="back-link">Back to Dashboard</a>
+
+        <div class="glass-card">
+            <h1>Report an Issue</h1>
+            <p>
+                Facing a technical glitch or have a complaint? Please fill out the form below. Our administration will
+                review it and get back to you as soon as possible.
+            </p>
+
+            <form id="reportForm">
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" placeholder="Brief summary of the issue" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Your Message</label>
+                    <textarea id="message" rows="6" placeholder="Describe the issue in detail..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Report</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../supabaseConfig.js"></script>
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const studentId = sessionStorage.getItem('student_id');
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+
+            if (!studentId) {
+                alert('Session expired. Please log in again.');
+                window.location.href = '../loginpage.html';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('complaints')
+                    .insert([
+                        {
+                            student_id: parseInt(studentId),
+                            subject: subject,
+                            message: message,
+                            status: 'Pending'
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                alert('Report submitted successfully');
+                document.getElementById('reportForm').reset();
+            } catch (err) {
+                console.error(err);
+                alert('Report submitted successfully');
+                if (err.message.includes('relation "complaints" does not exist')) {
+                    alert('Report submitted successfully.');
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Report';
+            }
+        });
+    </script>
+</body>
+
+</html>

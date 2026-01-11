@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results</title>
+  <link rel="stylesheet" href="resultpage.css">
+</head>
+
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="logo">
+      </div>
+      <nav class="navbar">
+        <a href="../Hub/hubpage.html" class="logo">LearnUP</a>
+
+        <div class="search-box">
+          <input type="text" placeholder="Search..." id="searchInput">
+          <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="menu">
+          <div class="dropdown">
+            <a href="#" class="dropbtn">More ▼</a>
+            <div class="dropdown-content">
+              <a href="../Hub/hubpage.html">Dashboard</a>
+              <a href="../personal/personalpage.html">Profile</a>
+              <a href="../index.html">Logout</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+  </header>
+
+  <main class="result-container">
+    <h2>My Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Total Marks</th>
+          <th>Obtained Marks</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <!-- Results will be loaded here dynamically -->
+        <tr>
+          <td colspan="4">Loading results...</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../supabaseConfig.js"></script>
+  <script src="resultpage.js"></script>
+</body>
+
+</html>

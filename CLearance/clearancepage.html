@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clearance Status</title>
+  <link rel="stylesheet" href="clearancepage.css">
+</head>
+
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="../Hub/hubpage.html" class="logo">LearnUP</a>
+
+      <div class="search-box">
+        <input type="text" placeholder="Search..." id="searchInput">
+        <button class="search-btn">🔍</button>
+      </div>
+
+      <div class="menu">
+        <div class="dropdown">
+          <a href="#" class="dropbtn">More ▼</a>
+          <div class="dropdown-content">
+            <a href="../Hub/hubpage.html">Dashboard</a>
+            <a href="../personal/personalpage.html">Profile</a>
+            <a href="../index.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="clearance-container">
+    <h2>Clearance Status</h2>
+    <div class="clearance-cards-wrapper">
+      <div class="clearance-card">
+        <h3>Financial Clearance</h3>
+        <p>Status: <span id="finance-status" class="status">Loading...</span></p>
+        <p>Total Fees: <span id="finance-total">...</span></p>
+        <p>Status Details: <span id="finance-details">Checking...</span></p>
+      </div>
+
+      <div class="clearance-card">
+        <h3>Library Clearance</h3>
+        <p>Status: <span class="status cleared">Cleared</span></p>
+        <p>Pending Books: 0</p>
+      </div>
+
+      <div class="clearance-card">
+        <h3>Department Clearance</h3>
+        <p>Status: <span class="status cleared">Cleared</span></p>
+        <p>All required forms submitted.</p>
+      </div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../supabaseConfig.js"></script>
+  <script src="clearancepage.js"></script>
+</body>
+
+</html>
