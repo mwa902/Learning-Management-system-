@@ -1,4 +1,10 @@
 // assignmentpage.js - UMD Version
+const SUPABASE_URL = "https://eymsxizmkiteggxakfpc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_hUxdhiQdpIuxeFUpFO2ueg_z7YCSmKg";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+console.log('Supabase Client Initialized');
+
 document.addEventListener('DOMContentLoaded', async () => {
     const listContainer = document.getElementById('assignments-list');
     const studentId = sessionStorage.getItem('student_id');
