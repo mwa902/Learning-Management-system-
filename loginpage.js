@@ -82,33 +82,56 @@ document.addEventListener('DOMContentLoaded', () => {
             messageEl.style.color = 'blue';
 
             try {
-                // 1. Generate a random ID for the student
-                const newStudentId = Math.floor(Math.random() * 90000) + 1000;
+                // --- TRIGGER BYPASS FIX ---
+                // Problem: The database trigger might be causing collisions if it just uses the Name for creation.
+                // Solution: Insert with UNIQUE temporary name -> Update to Real Name -> Update Credentials
 
-                // 2. Insert into STUDENT table with new fields and defaults
+                messageEl.textContent = 'Initializing secure registration...';
+
+                // 1. Generate Unique ID and Temp Name to satisfy any trigger logic
+                const newStudentId = Math.floor(Math.random() * 90000) + 1000;
+                // "TempUser_1234_987654321" is extremely unlikely to collide
+                const tempUniqueName = `TempUser_${newStudentId}_${Date.now()}`;
+
+                // 2. Insert Student with TEMP NAME
                 const { error: studentError } = await supabaseClient
                     .from('student')
                     .insert([
                         {
                             student_id: newStudentId,
-                            name: name,
+                            name: tempUniqueName,
                             email: email,
                             phone_no: phone,
                             program: program,
                             batch: 2025,
                             semester: 1,
-                            age: 18 // Default age
+                            age: 18
                         }
                     ]);
 
                 if (studentError) {
-                    throw new Error('Error creating student: ' + studentError.message);
+                    console.error('Student Insert Error:', studentError);
+                    if (studentError.code === '23505') {
+                        throw new Error('System busy, please click Sign Up again.');
+                    }
+                    throw new Error('Error creating student record: ' + studentError.message);
                 }
 
-                // 3. Update the automatically created user_auth entry
-                // Wait small delay to ensure trigger fired (rarely needed but safe)
-                // await new Promise(r => setTimeout(r, 500)); 
+                // 3. Update Student Name to REAL Name
+                messageEl.textContent = 'Finalizing profile...';
+                const { error: updateNameError } = await supabaseClient
+                    .from('student')
+                    .update({ name: name })
+                    .eq('student_id', newStudentId);
 
+                if (updateNameError) {
+                    console.error('Name Update Error:', updateNameError);
+                }
+
+                // 4. Update or Insert Credentials
+                messageEl.textContent = 'Setting credentials...';
+
+                // We try to UPDATE the trigger-created record first
                 const { data: updatedUser, error: authError } = await supabaseClient
                     .from('user_auth')
                     .update({
@@ -118,27 +141,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('student_id', newStudentId)
                     .select();
 
-                if (authError) {
-                    throw new Error('Error setting credentials: ' + authError.message);
+                if (authError || !updatedUser || updatedUser.length === 0) {
+                    // Check for username collision on the UPDATE itself
+                    if (authError && authError.code === '23505') {
+                        throw new Error('Username already taken. Please choose another.');
+                    }
+
+                    console.log('Trigger record not accessible, performing manual setup...');
+
+                    // Manual Insert Fallback
+                    const { error: manualError } = await supabaseClient
+                        .from('user_auth')
+                        .insert([{
+                            student_id: newStudentId,
+                            username: username,
+                            password_hash: password,
+                            role: 'Student'
+                        }]);
+
+                    if (manualError) {
+                        if (manualError.code === '23505') {
+                            throw new Error('Username already taken. Please choose another.');
+                        }
+                        throw new Error('Could not set login credentials: ' + manualError.message);
+                    }
                 }
 
-                if (!updatedUser || updatedUser.length === 0) {
-                    throw new Error('Account created but could not set password. Check RLS policies or try default hash.');
-                }
-
-                messageEl.textContent = 'Account created! Redirecting...';
+                messageEl.textContent = 'Success! Redirecting...';
                 messageEl.style.color = 'green';
                 alert('Account Created Successfully!');
 
                 setTimeout(() => {
-                    window.location.href = 'loginpage.html';
+                    window.location.href = '../index.html';
                 }, 1500);
 
             } catch (err) {
-                console.error('Signup error:', err);
+                console.error('Signup Failure Flow:', err);
                 messageEl.textContent = 'Signup Failed: ' + err.message;
                 messageEl.style.color = 'red';
-                alert('Signup Failed: ' + err.message);
+                alert(err.message);
             }
         });
     }
