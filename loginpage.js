@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Account Created Successfully!');
 
                 setTimeout(() => {
-                    window.location.href = 'loginpage.html';
+                    window.location.href = '../index.html';
                 }, 1500);
 
             } catch (err) {
